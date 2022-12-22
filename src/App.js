@@ -16,39 +16,50 @@ function App() {
                         console.log(response.data[0])
                         // makes json data available for hook
                         setData(response.data[0])
+
+                        if (response.data[0] && response.data[0].flight_category === 'VFR') {
+
+                        }
                     }
-                    })
+                })
         }
     }
 
     return (
         <div className="app">
-            <div className="search">
+            {/*--------------------Search Bar--------------------*/}
+            <section className="search">
                 <input
                     value={location}
                     onChange={event => setLocation(event.target.value)}
                     onKeyPress={searchAirport}
                     placeholder='Enter Airport ID'
                     type='text'/>
-            </div>
-            <div className='container'>
-                <div className='top'>
-                    <div className='airport'>
-                        <p>{data.icao ? data.icao : null}</p>
-                    </div>
-                    <div className='temperature'>
-                        {data.temperature ? <h1>{data.temperature.fahrenheit}°F</h1> : null}
-                    </div>
+            </section>
+            {/*--------------------Middle section--------------------*/}
+            <section className='top'>
+                <div className='airport'>
+                    <p>{data.icao ? data.icao : null} - {data.station ? data.station.name : null}</p>
+                    <p>{data.station ? data.station.location : null}</p>
                 </div>
-
-                <div className='bottom'>
-                    <div className="date-time">
-                        {data.observed ? <p className='bold'>{data.observed}</p> : null}
-                        <p>Date/time</p>
+                <div className='temperature'>
+                    {data.temperature ? <h1>{data.temperature.fahrenheit}°F</h1> : null}
+                </div>
+            </section>
+            {/*--------------------Bottom section--------------------*/}
+            <section className='bottom'>
+                <div className="bottom-header">
+                    <h3>METAR - {location.toUpperCase()}</h3>
+                    {data.observed ? <p className='bold'>{data.observed}</p> : null}
+                </div>
+                <div className="bottom-data">
+                    <div className="flight-rules">
+                        {data.flight_category ? <p className='bold'>{data.flight_category}</p> : null}
+                        <p>Flight Rules</p>
                     </div>
                     <div className="wind">
                         {data.wind ? <p className='bold'>{data.wind.degrees}° at {data.wind.speed_kts} knots</p> : null}
-                        <p>Wind direction/speed</p>
+                        <p>Wind</p>
                     </div>
                     <div className="altimeter">
                         {data.barometer ? <p className='bold'>{data.barometer.hg} inHg</p> : null}
@@ -67,7 +78,7 @@ function App() {
                         <p>Visibility</p>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }
