@@ -112,3 +112,24 @@ h1 {
     padding: 1rem;
     margin: 1rem auto;
 }
+
+/********** flight rule colors *********/
+.vfr {
+    font-weight: bold;
+    color: #1CC115;
+}
+
+.mvfr {
+    font-weight: bold;
+    color: #2CA4CA;
+}
+
+.ifr {
+    font-weight: bold;
+    color: #E31111;
+}
+
+.lifr {
+    font-weight: bold;
+    color: #753098;
+}
