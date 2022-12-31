@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-//TODO: remove all commented console.logs
+//TODO: add checking/error handling for user input
 function App() {
     const [metarData, setMetarData] = useState({})
     const [location, setLocation] = useState('')
@@ -39,12 +39,9 @@ function App() {
 
     // converts unit timestamp to human-readable format
     function timeConversion(unix) {
-        console.log('Unix time: ' + unix.current.dt)
         const milliseconds = (unix.current.dt * 1000)
-        console.log('millisecond conversion: ' + milliseconds)
         const dateObject = new Date(milliseconds)
         const readableTime = dateObject.toLocaleString('en-US', {timeZone: `${unix.timezone}`})
-        console.log('dateObject readable time: ' + readableTime)
         setTime(readableTime)
     }
     // ----------------------------------------End Functions----------------------------------------
@@ -62,7 +59,6 @@ function App() {
                 .then(response => {
                     if (response.data[0]) {
                         setMetarData(response.data[0])
-                        console.log(response.data[0])
                         return response.data[0]
                     }
                 })
@@ -77,7 +73,6 @@ function App() {
                         .then(response => {
                             setTemp(response.current.temp.toFixed(0))
                             weatherIcon(response)
-                            console.log(response)
                             timeConversion(response)
                         })
                 })
