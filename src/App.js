@@ -76,6 +76,7 @@ function App() {
                             timeConversion(response)
                         })
                 })
+
         }
     }
 
@@ -90,7 +91,8 @@ function App() {
                     placeholder='Enter Airport ID'
                     type='text'/>
             </section>
-            {/*--------------------Middle section--------------------*/}
+            {/*-------------------- Queried results--------------------*/}
+            <div></div>
             <section className='location-data'>
                 <h1 className='welcome-message'>Welcome! Enter an ICAO identifier in the box above to get started.</h1>
                 <div className='airport'>
@@ -108,40 +110,43 @@ function App() {
             </section>
             {/*--------------------Bottom section--------------------*/}
             {/*TODO: need to fix this so it does not show upon initial page load*/}
-            <section className='metar'>
-                <div className="metar-header">
-                    <h3>METAR</h3>
-                    {metarData.raw_text ? <p className='bold'>{metarData.raw_text}</p> : null}
-                </div>
-                <div className="metar-data">
-                    <div className="flight-rules">
-                        <p>Flight Rules</p>
-                        {<p className='rule-color'>{rule}</p>}
+            {metarData.raw_text === undefined ? null :
+                <section className='metar'>
+                    <div className="metar-header">
+                        <h3>METAR</h3>
+                        {metarData.raw_text ? <p className='bold'>{metarData.raw_text}</p> : null}
                     </div>
-                    <div className="wind">
-                        <p>Wind</p>
-                        {metarData.wind ?
-                            <p className='bold'>{metarData.wind.degrees}° at {metarData.wind.speed_kts} knots</p> : null}
+                    <div className="metar-data">
+                        <div className="flight-rules">
+                            <p>Flight Rules</p>
+                            {<p className='rule-color'>{rule}</p>}
+                        </div>
+                        <div className="wind">
+                            <p>Wind</p>
+                            {metarData.wind ?
+                                <p className='bold'>{metarData.wind.degrees}°
+                                    at {metarData.wind.speed_kts} knots</p> : null}
+                        </div>
+                        <div className="altimeter">
+                            <p>Altimeter</p>
+                            {metarData.barometer ? <p className='bold'>{metarData.barometer.hg} inHg</p> : null}
+                        </div>
+                        <div className="clouds">
+                            <p>Clouds</p>
+                            {metarData.clouds ?
+                                <p className='bold'>{metarData.clouds[0].text} {metarData.clouds[0].base_feet_agl}</p> : null}
+                        </div>
+                        <div className="dewpoint">
+                            <p>Dewpoint</p>
+                            {metarData.dewpoint ? <p className='bold'>{metarData.dewpoint.fahrenheit}°F</p> : null}
+                        </div>
+                        <div className="visibility">
+                            <p>Visibility</p>
+                            {metarData.visibility ? <p className='bold'>{metarData.visibility.miles}SM</p> : null}
+                        </div>
                     </div>
-                    <div className="altimeter">
-                        <p>Altimeter</p>
-                        {metarData.barometer ? <p className='bold'>{metarData.barometer.hg} inHg</p> : null}
-                    </div>
-                    <div className="clouds">
-                        <p>Clouds</p>
-                        {metarData.clouds ?
-                            <p className='bold'>{metarData.clouds[0].text} {metarData.clouds[0].base_feet_agl}</p> : null}
-                    </div>
-                    <div className="dewpoint">
-                        <p>Dewpoint</p>
-                        {metarData.dewpoint ? <p className='bold'>{metarData.dewpoint.fahrenheit}°F</p> : null}
-                    </div>
-                    <div className="visibility">
-                        <p>Visibility</p>
-                        {metarData.visibility ? <p className='bold'>{metarData.visibility.miles}SM</p> : null}
-                    </div>
-                </div>
-            </section>
+                </section>
+            }
         </div>
     );
 }
