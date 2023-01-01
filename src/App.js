@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 
 //TODO: add checking/error handling for user input
 function App() {
@@ -9,6 +9,7 @@ function App() {
     const [temp, setTemp] = useState('')
     const [time, setTime] = useState('')
     const [sky, setSky] = useState('')
+    const [layout, setLayout] = useState('gridLayout')
 
     // ----------------------------------------Functions----------------------------------------
 
@@ -26,22 +27,11 @@ function App() {
         setTime(readableTime)
     }
 
-    // listens for window resizing upon loading app and resizes background accordingly
-    window.addEventListener('resize', ()=> {
-        if (window.innerWidth < 700 && metarData.icao) {
-            document.getElementsByClassName('app')[0].classList.add('heightPercent')
-            document.getElementsByClassName('app')[0].classList.remove('heightVH')
-        }
-        else {
-            document.getElementsByClassName('app')[0].classList.add('heightVH')
-            document.getElementsByClassName('app')[0].classList.remove('heightPercent')
-        }
-    })
-
     // takes user input and makes 2 API calls to retrieve METAR and weather data
     const searchAirport = (event) => {
 
         if (event.key === 'Enter') {
+            setLayout('app')
             const welcome = document.getElementsByClassName('welcome-message')
             welcome[0].style.visibility = 'hidden'
 
@@ -72,7 +62,7 @@ function App() {
     }
 
     return (
-        <div className="app ">
+        <div className={layout}>
             {/*--------------------Search Bar--------------------*/}
             <section className="search">
                 <input
@@ -90,14 +80,14 @@ function App() {
                         <div className='airport'>
                             <h2>{metarData.icao ? metarData.icao + ' -' : null} {metarData.station ? metarData.station.name : null}</h2>
                             <h2>{metarData.station ? metarData.station.location : null}</h2>
-                            <h3 className='time'>{time}</h3>
+                            <p className='time'>{time}</p>
                         </div>
                         <div className='weather'>
                             {icon !== '' ?
                                 <img className='weather-icon' src={`http://openweathermap.org/img/wn/${icon}@2x.png`}
                                      alt="weather icon"></img> : null}
                             <div className="weather-conditions">
-                                {temp !== '' ? <h3>{temp}°F</h3> : null}
+                                {temp !== '' ? <h3 className='bold'>{temp}°F</h3> : null}
                                 {sky !== '' ? <p className='weather-description'>{sky}</p> : null}
                             </div>
                         </div>
@@ -111,7 +101,7 @@ function App() {
                         <div className="metar-data">
                             <div className="flight-rules">
                                 <p>Flight Rules</p>
-                                <p className='rule-color'>{rule}</p>
+                                <p className='bold'>{rule}</p>
                             </div>
                             <div className="wind">
                                 <p>Wind</p>
