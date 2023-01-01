@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 
 //TODO: add checking/error handling for user input
 function App() {
@@ -11,25 +11,6 @@ function App() {
     const [sky, setSky] = useState('')
 
     // ----------------------------------------Functions----------------------------------------
-
-    // pass JSON response as parameter and function will return the current flight rule
-    function flightRule(response) {
-        setRule(response.flight_category)
-        let element = document.getElementsByClassName('rule-color')
-
-        if (response.flight_category === 'VFR') {
-            element[0].classList.add('vfr')
-        }
-        else if (response.flight_category === 'MVFR') {
-            element[0].classList.add('mvfr')
-        }
-        else if (response.flight_category === 'IFR') {
-            element[0].classList.add('ifr')
-        }
-        else if (response.flight_category === 'LIFR') {
-            element[0].classList.add('lifr')
-        }
-    }
 
     // checks checkwx API response for current cloud condition and also checks ipgeolocation API for current sunrise/sunset time. Returns appropriate image based on response data
     function weatherIcon(weather) {
@@ -44,7 +25,18 @@ function App() {
         const readableTime = dateObject.toLocaleString('en-US', {timeZone: `${unix.timezone}`})
         setTime(readableTime)
     }
-    // ----------------------------------------End Functions----------------------------------------
+
+    // listens for window resizing upon loading app and resizes background accordingly
+    window.addEventListener('resize', ()=> {
+        if (window.innerWidth < 700 && metarData.icao) {
+            document.getElementsByClassName('app')[0].classList.add('heightPercent')
+            document.getElementsByClassName('app')[0].classList.remove('heightVH')
+        }
+        else {
+            document.getElementsByClassName('app')[0].classList.add('heightVH')
+            document.getElementsByClassName('app')[0].classList.remove('heightPercent')
+        }
+    })
 
     // takes user input and makes 2 API calls to retrieve METAR and weather data
     const searchAirport = (event) => {
@@ -63,7 +55,7 @@ function App() {
                     }
                 })
                 .then(response => {
-                    flightRule(response)
+                    setRule(response.flight_category)
                     return response
                 })
                 .then( response => {
@@ -76,12 +68,11 @@ function App() {
                             timeConversion(response)
                         })
                 })
-
         }
     }
 
     return (
-        <div className="app">
+        <div className="app ">
             {/*--------------------Search Bar--------------------*/}
             <section className="search">
                 <input
@@ -90,62 +81,63 @@ function App() {
                     onKeyPress={searchAirport}
                     placeholder='Enter Airport ID'
                     type='text'/>
+                <h1 className='welcome-message'>{metarData.icao ? null : 'Welcome! Enter an ICAO identifier in the box above to get started.'}</h1>
             </section>
-            {/*-------------------- Queried results--------------------*/}
-            <div></div>
-            <section className='location-data'>
-                <h1 className='welcome-message'>Welcome! Enter an ICAO identifier in the box above to get started.</h1>
-                <div className='airport'>
-                    <h2>{metarData.icao ? metarData.icao +' -' : null} {metarData.station ? metarData.station.name : null}</h2>
-                    <h2>{metarData.station ? metarData.station.location : null}</h2>
-                    <h3 className='time'>{time}</h3>
+            {/*-------------------- Local Weather --------------------*/}
+            {metarData.icao !== undefined &&
+                <div className='data-container'>
+                    <section className='location-data'>
+                        <div className='airport'>
+                            <h2>{metarData.icao ? metarData.icao + ' -' : null} {metarData.station ? metarData.station.name : null}</h2>
+                            <h2>{metarData.station ? metarData.station.location : null}</h2>
+                            <h3 className='time'>{time}</h3>
+                        </div>
+                        <div className='weather'>
+                            {icon !== '' ?
+                                <img className='weather-icon' src={`http://openweathermap.org/img/wn/${icon}@2x.png`}
+                                     alt="weather icon"></img> : null}
+                            <div className="weather-conditions">
+                                {temp !== '' ? <h3>{temp}°F</h3> : null}
+                                {sky !== '' ? <p className='weather-description'>{sky}</p> : null}
+                            </div>
+                        </div>
+                    </section>
+                    {/*--------------------METAR Data --------------------*/}
+                    <section className='metar'>
+                        <div className="metar-header">
+                            <h3>METAR</h3>
+                            {metarData.raw_text ? <p className='bold'>{metarData.raw_text}</p> : null}
+                        </div>
+                        <div className="metar-data">
+                            <div className="flight-rules">
+                                <p>Flight Rules</p>
+                                <p className='rule-color'>{rule}</p>
+                            </div>
+                            <div className="wind">
+                                <p>Wind</p>
+                                {metarData.wind ? <p className='bold'>{metarData.wind.degrees}°
+                                    at {metarData.wind.speed_kts} kts</p> : <p className='bold'>0 kts</p>}
+                            </div>
+                            <div className="altimeter">
+                                <p>Altimeter</p>
+                                {metarData.barometer ? <p className='bold'>{metarData.barometer.hg} inHg</p> : null}
+                            </div>
+                            <div className="clouds">
+                                <p>Clouds</p>
+                                {metarData.clouds ?
+                                    <p className='bold'>{metarData.clouds[0].text} {metarData.clouds[0].base_feet_agl}</p> : null}
+                            </div>
+                            <div className="dewpoint">
+                                <p>Dewpoint</p>
+                                {metarData.dewpoint ? <p className='bold'>{metarData.dewpoint.fahrenheit}°F</p> : null}
+                            </div>
+                            <div className="visibility">
+                                <p>Visibility</p>
+                                {metarData.visibility ? <p className='bold'>{metarData.visibility.miles}SM</p> : null}
+                            </div>
+                        </div>
+                    </section>
                 </div>
-                <div className='weather'>
-                    {icon !== '' ? <img className='weather-icon' src={`http://openweathermap.org/img/wn/${icon}@2x.png`} alt="weather icon"></img> : null}
-                    <div className="weather-conditions">
-                        {temp !== '' ? <h3>{temp}°F</h3> : null}
-                        {sky !== '' ? <p className='weather-description'>{sky}</p> : null}
-                    </div>
-                </div>
-            </section>
-            {/*--------------------Bottom section--------------------*/}
-            {/*TODO: need to fix this so it does not show upon initial page load*/}
-            {metarData.raw_text === undefined ? null :
-                <section className='metar'>
-                    <div className="metar-header">
-                        <h3>METAR</h3>
-                        {metarData.raw_text ? <p className='bold'>{metarData.raw_text}</p> : null}
-                    </div>
-                    <div className="metar-data">
-                        <div className="flight-rules">
-                            <p>Flight Rules</p>
-                            {<p className='rule-color'>{rule}</p>}
-                        </div>
-                        <div className="wind">
-                            <p>Wind</p>
-                            {metarData.wind ?
-                                <p className='bold'>{metarData.wind.degrees}°
-                                    at {metarData.wind.speed_kts} knots</p> : null}
-                        </div>
-                        <div className="altimeter">
-                            <p>Altimeter</p>
-                            {metarData.barometer ? <p className='bold'>{metarData.barometer.hg} inHg</p> : null}
-                        </div>
-                        <div className="clouds">
-                            <p>Clouds</p>
-                            {metarData.clouds ?
-                                <p className='bold'>{metarData.clouds[0].text} {metarData.clouds[0].base_feet_agl}</p> : null}
-                        </div>
-                        <div className="dewpoint">
-                            <p>Dewpoint</p>
-                            {metarData.dewpoint ? <p className='bold'>{metarData.dewpoint.fahrenheit}°F</p> : null}
-                        </div>
-                        <div className="visibility">
-                            <p>Visibility</p>
-                            {metarData.visibility ? <p className='bold'>{metarData.visibility.miles}SM</p> : null}
-                        </div>
-                    </div>
-                </section>
             }
         </div>
     );
