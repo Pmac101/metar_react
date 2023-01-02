@@ -52,6 +52,10 @@ input {
     outline: none;
 }
 
+::placeholder {
+    color: #444444;
+}
+
 .bold {
     font-weight: 700;
 }
