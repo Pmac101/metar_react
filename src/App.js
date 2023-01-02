@@ -81,7 +81,7 @@ function App() {
                     maxLength={4}
                     onChange={event => setLocation(event.target.value)}
                     onKeyPress={searchAirport}
-                    placeholder='Enter Airport ID'
+                    placeholder='Examples: KMIA, KLAS'
                     type='text'/>
                 <p className='error-message'>{error === false ? null : 'Incorrect ICAO identifier. Please try again.'}</p>
                 <h1 className='welcome-message'>{metarData.icao ? null : 'Welcome! Enter an ICAO identifier in the box above to get started.'}</h1>
