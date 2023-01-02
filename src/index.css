@@ -70,6 +70,11 @@ input {
     margin: 15px 0;
 }
 
+.error-message {
+    color: coral;
+    margin: 15px 0;
+}
+
 .data-container {
     display: flex;
     justify-content: space-evenly;
@@ -200,24 +205,20 @@ img {
     }
 }
 
-@media only screen and (min-width: 1160px) and (min-height: 800px) {
+@media only screen and (max-width: 1160px) {
+
     .data-container {
         flex-direction: column;
         align-items: center;
     }
 }
 
-@media only screen and (max-width: 1160px) {
+
+@media only screen and (max-width: 700px) {
     .app {
         height: 100%;
     }
-    .data-container {
-        align-items: center;
-        flex-direction: column;
-    }
-}
 
-@media only screen and (max-width: 700px) {
     .metar-data {
         flex-direction: column;
     }

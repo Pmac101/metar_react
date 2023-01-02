@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-//TODO: add checking/error handling for user input
+
 function App() {
     const [metarData, setMetarData] = useState({})
     const [location, setLocation] = useState('')
@@ -10,6 +10,7 @@ function App() {
     const [time, setTime] = useState('')
     const [sky, setSky] = useState('')
     const [layout, setLayout] = useState('gridLayout')
+    const [error, setError] = useState(false)
 
     // ----------------------------------------Functions----------------------------------------
 
@@ -31,35 +32,45 @@ function App() {
     const searchAirport = (event) => {
 
         if (event.key === 'Enter') {
-            setLayout('app')
-            const welcome = document.getElementsByClassName('welcome-message')
-            welcome[0].style.visibility = 'hidden'
+            if (location.length === 4) {
+                const welcome = document.getElementsByClassName('welcome-message')
+                welcome[0].style.visibility = 'hidden'
 
-            // Call to CheckWX API - retrieves METAR data
-            fetch(`https://api.checkwx.com/metar/${location}/decoded?x-api-key=429d0470f1b747b4b9de564ff9`)
-                .then((response) => response.json())
-                .then(response => {
-                    if (response.data[0]) {
-                        setMetarData(response.data[0])
-                        return response.data[0]
-                    }
-                })
-                .then(response => {
-                    setRule(response.flight_category)
-                    return response
-                })
-                .then( response => {
-                    // API call to openweathermap. Airport coordinates from CheckWX API response are used to retrieve current weather conditions
-                    fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=${response.station.geometry.coordinates[1]}&lon=${response.station.geometry.coordinates[0]}&exclude=minutely&units=imperial&appid=f77078a3b256ade5ae31b9e8ab8422c6`)
-                        .then((response) => response.json())
-                        .then(response => {
-                            setTemp(response.current.temp.toFixed(0))
-                            weatherIcon(response)
-                            timeConversion(response)
-                        })
-                })
+                // Call to CheckWX API - retrieves METAR data
+                fetch(`https://api.checkwx.com/metar/${location}/decoded?x-api-key=429d0470f1b747b4b9de564ff9`)
+                    .then((response) => response.json())
+                    .then(response => {
+                        if (response.data[0]) {
+                            setLayout('app')
+                            setError(false)
+                            setMetarData(response.data[0])
+                            return response.data[0]
+                        }
+                        // displays error message if no API response
+                        else {
+                            setError(true)
+                        }
+                    })
+                    .then(response => {
+                        setRule(response.flight_category)
+                        return response
+                    })
+                    .then( response => {
+                        // API call to openweathermap. Airport coordinates from CheckWX API response are used to retrieve current weather conditions
+                        fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=${response.station.geometry.coordinates[1]}&lon=${response.station.geometry.coordinates[0]}&exclude=minutely&units=imperial&appid=f77078a3b256ade5ae31b9e8ab8422c6`)
+                            .then((response) => response.json())
+                            .then(response => {
+                                setTemp(response.current.temp.toFixed(0))
+                                weatherIcon(response)
+                                timeConversion(response)
+                            })
+                    })
+                }
+                else {
+                    alert('ICAO identifier must be 4 characters long.')
+                }
+            }
         }
-    }
 
     return (
         <div className={layout}>
@@ -67,10 +78,12 @@ function App() {
             <section className="search">
                 <input
                     value={location}
+                    maxLength={4}
                     onChange={event => setLocation(event.target.value)}
                     onKeyPress={searchAirport}
                     placeholder='Enter Airport ID'
                     type='text'/>
+                <p className='error-message'>{error === false ? null : 'Incorrect ICAO identifier. Please try again.'}</p>
                 <h1 className='welcome-message'>{metarData.icao ? null : 'Welcome! Enter an ICAO identifier in the box above to get started.'}</h1>
             </section>
             {/*-------------------- Local Weather --------------------*/}
